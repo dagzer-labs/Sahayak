@@ -1,0 +1,36 @@
+[package]
+name = "sahayak-api"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[dependencies]
+axum.workspace = true
+sahayak-configuration = { path = "../../crates/configuration" }
+sahayak-cryptography = { path = "../../crates/cryptography" }
+sahayak-domain = { path = "../../crates/domain" }
+sahayak-observability = { path = "../../crates/observability" }
+sahayak-payments = { path = "../../crates/payments" }
+sahayak-persistence = { path = "../../crates/persistence" }
+sahayak-whatsapp = { path = "../../crates/whatsapp" }
+secrecy.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+time.workspace = true
+tokio.workspace = true
+tower.workspace = true
+tower-http.workspace = true
+tracing.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+hex.workspace = true
+hmac.workspace = true
+sha2.workspace = true
+sqlx.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,122 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: "1"
+  SAHAYAK_TEST_DATABASE_URL: postgres://sahayak_app:sahayak_ci@127.0.0.1:5432/sahayak
+
+jobs:
+  quality:
+    name: Format, lint, test, and build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    services:
+      postgres:
+        image: postgis/postgis:18-3.6-alpine@sha256:eb2e8b8afd9b0ecee83bc20fd01aca62a5071bada2c0f38763174b653f8eed42
+        env:
+          POSTGRES_DB: sahayak
+          POSTGRES_USER: sahayak_app
+          POSTGRES_PASSWORD: sahayak_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sahayak_app -d sahayak"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v5
+
+      - name: Install pinned Rust toolchain
+        run: rustup show active-toolchain
+
+      - name: Apply database migrations
+        env:
+          SAHAYAK__DATABASE__URL: ${{ env.SAHAYAK_TEST_DATABASE_URL }}
+        run: cargo run --locked --bin sahayak-migrator
+
+      - name: Verify legal release manifest
+        env:
+          DATABASE_URL: ${{ env.SAHAYAK_TEST_DATABASE_URL }}
+        run: sh scripts/verify-legal-release.sh
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run Clippy
+        run: cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
+
+      - name: Run tests
+        run: cargo test --workspace --all-targets --all-features --locked
+
+      - name: Build release binaries
+        run: cargo build --workspace --release --locked
+
+      - name: Build API container
+        run: docker build --target api --tag sahayak-api:ci .
+
+      - name: Build worker container
+        run: docker build --target worker --tag sahayak-worker:ci .
+
+      - name: Build migrator container
+        run: docker build --target migrator --tag sahayak-migrator:ci .
+
+      - name: Scan repository secrets
+        run: >-
+          docker run --rm -v "$PWD:/workspace" -w /workspace
+          aquasec/trivy@sha256:e2b22eac59c02003d8749f5b8d9bd073b62e30fefaef5b7c8371204e0a4b0c08
+          filesystem --scanners secret --exit-code 1 .
+
+      - name: Scan runtime images
+        run: |
+          for image in sahayak-api:ci sahayak-worker:ci sahayak-migrator:ci; do
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+              aquasec/trivy@sha256:e2b22eac59c02003d8749f5b8d9bd073b62e30fefaef5b7c8371204e0a4b0c08 \
+              image --ignore-unfixed --severity HIGH,CRITICAL --exit-code 1 "$image"
+          done
+
+      - name: Generate CycloneDX SBOM
+        run: >-
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD:/workspace"
+          aquasec/trivy@sha256:e2b22eac59c02003d8749f5b8d9bd073b62e30fefaef5b7c8371204e0a4b0c08
+          image --format cyclonedx --output /workspace/sahayak-api.cdx.json sahayak-api:ci
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sahayak-api-sbom
+          path: sahayak-api.cdx.json
+
+  security:
+    name: Dependency audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v5
+
+      - name: Install pinned Rust toolchain
+        run: rustup show active-toolchain
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit --version 0.22.2 --locked
+
+      - name: Audit dependency graph
+        run: cargo audit

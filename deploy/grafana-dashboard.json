@@ -1,0 +1,14 @@
+{
+  "title": "Sahayak Pilot Operations",
+  "uid": "sahayak-pilot",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "panels": [
+    {"type":"stat","title":"Ready jobs","targets":[{"expr":"sahayak_outbox_ready"}],"gridPos":{"x":0,"y":0,"w":6,"h":5}},
+    {"type":"stat","title":"Oldest ready job (seconds)","targets":[{"expr":"sahayak_outbox_oldest_ready_seconds"}],"gridPos":{"x":6,"y":0,"w":6,"h":5}},
+    {"type":"stat","title":"Dead letters","targets":[{"expr":"sahayak_outbox_dead_lettered"}],"gridPos":{"x":12,"y":0,"w":6,"h":5}},
+    {"type":"stat","title":"Overdue safety reports","targets":[{"expr":"sahayak_safety_reports_overdue"}],"gridPos":{"x":18,"y":0,"w":6,"h":5}},
+    {"type":"timeseries","title":"Billing webhook backlog","targets":[{"expr":"sahayak_billing_webhooks_pending"},{"expr":"sahayak_billing_webhooks_failed"}],"gridPos":{"x":0,"y":5,"w":24,"h":8}}
+  ]
+}

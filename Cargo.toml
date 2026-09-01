@@ -1,0 +1,100 @@
+[workspace]
+members = [
+    "apps/api",
+    "apps/migrator",
+    "apps/worker",
+    "crates/configuration",
+    "crates/conversation-engine",
+    "crates/cryptography",
+    "crates/domain",
+    "crates/localization",
+    "crates/observability",
+    "crates/payments",
+    "crates/persistence",
+    "crates/whatsapp",
+]
+resolver = "3"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.98"
+authors = ["Dagzer"]
+publish = false
+
+[workspace.dependencies]
+aes-gcm = "0.11.1"
+axum = { version = "0.8.9", default-features = false, features = [
+    "http1",
+    "json",
+    "matched-path",
+    "query",
+    "tokio",
+    "tracing",
+] }
+config = { version = "0.15.25", default-features = false }
+base64 = "0.23.1"
+getrandom = "0.4.3"
+hex = "0.4.3"
+hmac = "0.13.0"
+reqwest = { version = "0.13.4", default-features = false, features = ["http2", "json", "multipart", "rustls"] }
+secrecy = { version = "0.10.3", features = ["serde"] }
+sentry = { version = "0.49.2", default-features = false, features = ["contexts", "panic", "reqwest", "rustls"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+sha2 = "0.11.0"
+sqlx = { version = "0.9.0", default-features = false, features = [
+    "macros",
+    "migrate",
+    "json",
+    "postgres",
+    "runtime-tokio",
+    "time",
+    "tls-rustls-ring-webpki",
+    "uuid",
+] }
+thiserror = "2.0.20"
+time = { version = "0.3.55", features = ["serde"] }
+tokio = { version = "1.53.1", default-features = false, features = [
+    "macros",
+    "net",
+    "rt-multi-thread",
+    "signal",
+    "sync",
+    "time",
+] }
+tower = { version = "0.5.3", features = ["limit", "util"] }
+tower-http = { version = "0.7.0", default-features = false, features = [
+    "catch-panic",
+    "limit",
+    "timeout",
+    "trace",
+] }
+subtle = "2.6.1"
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", default-features = false, features = [
+    "env-filter",
+    "fmt",
+    "json",
+] }
+uuid = { version = "1.26.0", features = ["serde", "v4", "v7"] }
+unicode-normalization = "0.1.25"
+url = "2.5.8"
+zeroize = "1.9.0"
+wiremock = "0.6.5"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+unused_must_use = "deny"
+
+[workspace.lints.clippy]
+dbg_macro = "deny"
+expect_used = "deny"
+todo = "deny"
+unimplemented = "deny"
+unwrap_used = "deny"
+
+[profile.release]
+codegen-units = 1
+lto = "thin"
+strip = "symbols"

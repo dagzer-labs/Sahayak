@@ -1,0 +1,17 @@
+[package]
+name = "sahayak-migrator"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[dependencies]
+sahayak-configuration = { path = "../../crates/configuration" }
+sahayak-observability = { path = "../../crates/observability" }
+sahayak-persistence = { path = "../../crates/persistence" }
+tokio.workspace = true
+tracing.workspace = true
+
+[lints]
+workspace = true

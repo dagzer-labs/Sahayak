@@ -1,0 +1,28 @@
+groups:
+  - name: sahayak-pilot
+    rules:
+      - alert: SahayakOutboxQueueStalled
+        expr: sahayak_outbox_oldest_ready_seconds > 120
+        for: 5m
+        labels: {severity: critical}
+        annotations: {summary: "Sahayak outbox oldest ready job exceeds two minutes"}
+      - alert: SahayakDeadLettersPresent
+        expr: sahayak_outbox_dead_lettered > 0
+        for: 1m
+        labels: {severity: warning}
+        annotations: {summary: "Sahayak has dead-lettered jobs requiring review"}
+      - alert: SahayakSafetyReportOverdue
+        expr: sahayak_safety_reports_overdue > 0
+        for: 1m
+        labels: {severity: critical}
+        annotations: {summary: "A safety report missed its response target"}
+      - alert: SahayakBillingWebhookFailure
+        expr: sahayak_billing_webhooks_failed > 0
+        for: 2m
+        labels: {severity: warning}
+        annotations: {summary: "A Razorpay webhook requires reconciliation"}
+      - alert: SahayakBillingWebhookBacklog
+        expr: sahayak_billing_webhooks_pending > 10
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: "Razorpay webhook processing backlog is growing"}

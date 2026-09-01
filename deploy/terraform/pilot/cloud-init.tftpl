@@ -1,0 +1,66 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+packages:
+  - ca-certificates
+  - curl
+  - docker.io
+  - docker-compose-v2
+  - jq
+  - unattended-upgrades
+
+write_files:
+  - path: /etc/docker/daemon.json
+    owner: root:root
+    permissions: "0644"
+    content: |
+      {
+        "log-driver": "json-file",
+        "log-opts": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      }
+  - path: /etc/sahayak/cloudflared.env
+    owner: root:root
+    permissions: "0600"
+    content: |
+      TUNNEL_TOKEN=${tunnel_token}
+  - path: /etc/systemd/system/cloudflared.service
+    owner: root:root
+    permissions: "0644"
+    content: |
+      [Unit]
+      Description=Cloudflare Tunnel for Sahayak
+      After=docker.service network-online.target
+      Requires=docker.service
+      Wants=network-online.target
+
+      [Service]
+      EnvironmentFile=/etc/sahayak/cloudflared.env
+      ExecStartPre=-/usr/bin/docker rm -f sahayak-cloudflared
+      ExecStart=/usr/bin/docker run --name sahayak-cloudflared --network host --read-only --cap-drop ALL --security-opt no-new-privileges --env TUNNEL_TOKEN ${cloudflared_image} tunnel run
+      ExecStop=/usr/bin/docker stop sahayak-cloudflared
+      Restart=always
+      RestartSec=5
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  - install -d -m 0700 -o root -g root /etc/sahayak
+  - install -d -m 0750 -o ${admin_username} -g ${admin_username} /opt/sahayak
+  - fallocate -l 2G /swapfile
+  - chmod 0600 /swapfile
+  - mkswap /swapfile
+  - swapon /swapfile
+  - echo '/swapfile none swap sw 0 0' >> /etc/fstab
+  - systemctl enable --now docker
+  - systemctl daemon-reload
+  - systemctl enable --now cloudflared
+  - ufw default deny incoming
+  - ufw default allow outgoing
+  - ufw --force enable
+  - usermod -aG docker ${admin_username}
+  - systemctl enable --now unattended-upgrades

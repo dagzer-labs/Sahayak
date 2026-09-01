@@ -1,0 +1,35 @@
+# Rust build output
+/target/
+
+# Local environment and secrets
+/.env
+/.env.*
+!/.env.example
+
+# Test and coverage output
+/coverage/
+*.profraw
+*.profdata
+
+# Local tooling
+/.idea/
+/.vscode/
+*.swp
+*.swo
+
+# Operating-system metadata
+.DS_Store
+Thumbs.db
+
+# Runtime output
+*.log
+/tmp/
+
+# Terraform local state and credentials
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+*.tfplan
+crash.log

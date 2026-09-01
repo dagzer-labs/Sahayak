@@ -1,0 +1,37 @@
+[package]
+name = "sahayak-worker"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[dependencies]
+hex.workspace = true
+image = { version = "0.25.8", default-features = false, features = ["jpeg", "png"] }
+sahayak-configuration = { path = "../../crates/configuration" }
+sahayak-conversation-engine = { path = "../../crates/conversation-engine" }
+sahayak-cryptography = { path = "../../crates/cryptography" }
+sahayak-domain = { path = "../../crates/domain" }
+sahayak-localization = { path = "../../crates/localization" }
+sahayak-observability = { path = "../../crates/observability" }
+sahayak-payments = { path = "../../crates/payments" }
+sahayak-persistence = { path = "../../crates/persistence" }
+sahayak-whatsapp = { path = "../../crates/whatsapp" }
+secrecy.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+thiserror.workspace = true
+time.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+uuid.workspace = true
+zeroize.workspace = true
+
+[dev-dependencies]
+sqlx.workspace = true
+uuid.workspace = true
+wiremock.workspace = true
+
+[lints]
+workspace = true

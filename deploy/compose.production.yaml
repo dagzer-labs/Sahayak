@@ -1,0 +1,45 @@
+services:
+  api:
+    image: ${SAHAYAK_API_IMAGE:?set immutable API image digest}
+    read_only: true
+    user: "10001:10001"
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs: ["/tmp:size=16m,noexec,nosuid"]
+    env_file: ["${SAHAYAK_API_ENV_FILE:?required}"]
+    secrets: [meta_app_secret_current, meta_verify_token, sahayak_crypto_keyring, razorpay_key_secret, razorpay_webhook_secret_current, sentry_dsn]
+    restart: unless-stopped
+  worker:
+    image: ${SAHAYAK_WORKER_IMAGE:?set immutable worker image digest}
+    read_only: true
+    user: "10001:10001"
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs: ["/tmp:size=64m,noexec,nosuid"]
+    env_file: ["${SAHAYAK_WORKER_ENV_FILE:?required}"]
+    secrets: [meta_access_token, sahayak_crypto_keyring, razorpay_key_secret, sentry_dsn]
+    restart: unless-stopped
+  migrator:
+    image: ${SAHAYAK_MIGRATOR_IMAGE:?set immutable migrator image digest}
+    read_only: true
+    user: "10001:10001"
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    env_file: ["${SAHAYAK_MIGRATOR_ENV_FILE:?required}"]
+    profiles: ["migration"]
+
+secrets:
+  meta_app_secret_current:
+    file: "${META_APP_SECRET_FILE:?required}"
+  meta_verify_token:
+    file: "${META_VERIFY_TOKEN_FILE:?required}"
+  meta_access_token:
+    file: "${META_ACCESS_TOKEN_FILE:?required}"
+  sahayak_crypto_keyring:
+    file: "${SAHAYAK_CRYPTO_KEYRING_FILE:?required}"
+  razorpay_key_secret:
+    file: "${RAZORPAY_KEY_SECRET_FILE:?required}"
+  razorpay_webhook_secret_current:
+    file: "${RAZORPAY_WEBHOOK_SECRET_FILE:?required}"
+  sentry_dsn:
+    file: "${SENTRY_DSN_FILE:?required}"

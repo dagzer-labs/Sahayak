@@ -1,0 +1,18 @@
+[package]
+name = "sahayak-observability"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[dependencies]
+sahayak-configuration = { path = "../configuration" }
+sentry.workspace = true
+secrecy.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,12 @@
+azure_subscription_id = "00000000-0000-0000-0000-000000000000"
+admin_ssh_public_key  = "ssh-ed25519 AAAA... operator@example"
+alert_emails          = ["operations@example.com"]
+
+cloudflare_account_id = "00000000000000000000000000000000"
+cloudflare_zone_id    = "00000000000000000000000000000000"
+cloudflare_zone_name  = "dagzer.com"
+cloudflare_record_name = "sahayak"
+
+vm_size            = "Standard_B2ats_v2"
+monthly_budget_usd = 15
+budget_start_date  = "2026-09-01T00:00:00Z"

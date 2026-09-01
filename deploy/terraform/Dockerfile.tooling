@@ -1,0 +1,16 @@
+FROM mcr.microsoft.com/azure-cli@sha256:e3768dde8142efa45d8f356a317aaac77abd7da15ba3719b0a150e9453f251db
+
+ARG TERRAFORM_VERSION=1.16.0
+ARG TERRAFORM_SHA256=41d05b927aa174f15d1228c4eba832a323b716c68b415ef5a00179f46cc602d3
+
+RUN curl --fail --silent --show-error --location \
+        "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" \
+        --output /tmp/terraform.zip \
+    && printf '%s  %s\n' "${TERRAFORM_SHA256}" /tmp/terraform.zip | sha256sum --check --strict \
+    && python3 -m zipfile --extract /tmp/terraform.zip /usr/local/bin \
+    && chmod 0755 /usr/local/bin/terraform \
+    && rm /tmp/terraform.zip \
+    && terraform version \
+    && az version
+
+ENTRYPOINT ["terraform"]

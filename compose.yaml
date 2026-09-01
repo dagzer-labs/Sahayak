@@ -1,0 +1,23 @@
+name: sahayak
+
+services:
+  database:
+    image: postgis/postgis:18-3.6-alpine@sha256:eb2e8b8afd9b0ecee83bc20fd01aca62a5071bada2c0f38763174b653f8eed42
+    environment:
+      POSTGRES_DB: sahayak
+      POSTGRES_USER: sahayak_app
+      POSTGRES_PASSWORD: sahayak_dev
+    ports:
+      - "127.0.0.1:${SAHAYAK_POSTGRES_PORT:-55432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sahayak_app -d sahayak"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    stop_grace_period: 30s
+
+volumes:
+  postgres_data:

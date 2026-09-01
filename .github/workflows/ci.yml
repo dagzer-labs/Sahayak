@@ -41,7 +41,7 @@ jobs:
 
     steps:
       - name: Check out source
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Install pinned Rust toolchain
         run: rustup show active-toolchain
@@ -110,7 +110,7 @@ jobs:
 
     steps:
       - name: Check out source
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Install pinned Rust toolchain
         run: rustup show active-toolchain

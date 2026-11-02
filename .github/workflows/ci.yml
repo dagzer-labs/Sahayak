@@ -98,7 +98,7 @@ jobs:
           image --format cyclonedx --output /workspace/sahayak-api.cdx.json sahayak-api:ci
 
       - name: Upload SBOM
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sahayak-api-sbom
           path: sahayak-api.cdx.json
